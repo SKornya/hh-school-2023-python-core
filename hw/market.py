@@ -31,6 +31,9 @@ class Market:
         :param title:
         :return: True|False
         """
+        if not title:
+            return False
+
         titles = set(map(lambda drink: drink.title, self.drinks))
         return title in titles
 
@@ -58,8 +61,13 @@ class Market:
             return drink.production_date
         
         def is_in_range(drink):
-            return drink.production_date >= from_date | drink.production_date <= to_date
-
+            if not from_date and not to_date:
+                return True
+            elif not from_date:
+                return drink.production_date <= to_date
+            elif not to_date:
+                return drink.production_date >= from_date
+            return drink.production_date >= from_date and drink.production_date <= to_date
 
         sorted_drinks_by_date = sorted(self.drinks, key = sort_by_date)
         filtered_drinks_by_date = list(filter(lambda drink: is_in_range(drink), sorted_drinks_by_date))
