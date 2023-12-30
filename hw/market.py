@@ -69,7 +69,7 @@ class Market:
                 return drink.production_date <= to_date
             elif not to_date:
                 return drink.production_date >= from_date
-            return drink.production_date >= from_date and drink.production_date <= to_date
+            return from_date <= drink.production_date <= to_date
 
         drinks = [*self.beers.values(), *self.wines.values()]
 
