@@ -1,18 +1,16 @@
-import time
 from datetime import datetime
 
 def info_decorator(func):
     def wrapper(*args, **kwargs):
-        current_time = datetime.now().replace(microsecond=0)
+        current_time = datetime.now()
 
         print(f'\nНачало выполнения функции {func.__name__}')
-        print(f'Текущее время: {current_time}')
+        print(f'Текущее время: {current_time.replace(microsecond=0)}')
 
-        start = time.time()
         result = func(*args, **kwargs)
-        finish = time.time()
+        finish = datetime.now()
 
-        print(f'Затраченное время: {finish - start}')
+        print(f'Затраченное время: {finish.second - current_time.second} с {finish.microsecond - current_time.microsecond} мкс')
         print('Результат выполнения:\n')
 
         return result
@@ -20,7 +18,8 @@ def info_decorator(func):
 
 class Market:
     def __init__(self, wines: list = None, beers: list = None) -> None:
-        self.drinks = [*wines, *beers]
+        self.wines = { drink.title: drink for drink in wines }
+        self.beers = { drink.title: drink for drink in beers }
         pass
 
     @info_decorator
@@ -34,8 +33,9 @@ class Market:
         if not title:
             return False
 
-        titles = set(map(lambda drink: drink.title, self.drinks))
-        return title in titles
+        if title not in self.wines and title not in self.beers:
+            return False
+        return True
 
     @info_decorator
     def get_drinks_sorted_by_title(self) -> list:
@@ -46,8 +46,10 @@ class Market:
         """
         def sort_by_title(drink):
             return drink.title
+        
+        drinks = [*self.beers.values(), *self.wines.values()]
 
-        sorted_drinks_by_title = sorted(self.drinks, key = sort_by_title)
+        sorted_drinks_by_title = sorted(drinks, key = sort_by_title)
         return sorted_drinks_by_title
 
     @info_decorator
@@ -69,7 +71,9 @@ class Market:
                 return drink.production_date >= from_date
             return drink.production_date >= from_date and drink.production_date <= to_date
 
-        sorted_drinks_by_date = sorted(self.drinks, key = sort_by_date)
+        drinks = [*self.beers.values(), *self.wines.values()]
+
+        sorted_drinks_by_date = sorted(drinks, key = sort_by_date)
         filtered_drinks_by_date = list(filter(lambda drink: is_in_range(drink), sorted_drinks_by_date))
         
         return filtered_drinks_by_date
